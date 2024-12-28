@@ -1,11 +1,10 @@
 import { Routes, Route } from "react-router-dom";
 import Banner from "./components/Banner/Banner";
 import GroupRegister from "./pages/LoginRegister/GroupRegister";
-import RegisterPage from "./pages/LoginRegister/RegisterPage";
-import ChatPage from "./pages/Chat/ChatPage";
 import GroupChat from "./pages/Chat/GroupChat";
-import io from 'socket.io-client';
 
+
+import io from 'socket.io-client';
 
 
 function App() {
@@ -26,9 +25,8 @@ function App() {
       <Routes>
           <Route path='/' element={<Banner />}/>
           <Route path='/Group' element={<GroupRegister socket={socket}/>}/> 
-          <Route path='/register' element={<RegisterPage socket={socket} />} />
-          <Route path='/chat' element = {<ChatPage socket={socket} />} />
           <Route path='/chat/group' element = {<GroupChat socket={socket} />}/>
+          
        </Routes>
        
     </div>

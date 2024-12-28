@@ -39,7 +39,7 @@ declare module 'socket.io'{ //This tells TypeScript that you are augmenting the 
 
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:5173',
+        origin: ['http://localhost:5173', 'http://localhost:5173'],
         methods: ['GET', 'POST']
     }
 })
@@ -63,61 +63,27 @@ interface Data{
     userId: string;
     messege: String;
     time: string;
-}
+} 
 
-interface File{
+interface File{ 
     filename: string;
     originalname: string;
 }
 
-
-
-let users: any[] = [];
-let sendMesseges: any[] = [];
-let receivedMesseges: any[] = [];
-
-;
+interface callData{
+    userToCall: string;
+    signalData: string;
+    from: string;
+    name: string;
+}
 
 
 io.on('connection', (socket: Socket) => {
     console.log(`${socket.id} connected`);
 
-     socket.on('join', (userData: Join) => {
-     socket.username = userData.username;
-     console.log(userData.username);
-     console.log(`${socket.username} had joined with image ${userData.imageFile}`);
-
-    const currentUser = users.find((user) => user.id === socket.id);
-        if(!currentUser){ 
-            users.push({
-            userId: socket.id,
-            username: userData.username,
-            profilePhoto: userData.imageFile,
-           });
-         }
-     console.log(users);
-
-     io.emit('users', users);  //here we have used io.emit because we are sending userslist to each and every client
-
-     socket.broadcast.emit('user connected', { userID: socket.id, username: socket.username });
-
-     socket.on('private-messege', ({ content, to, time }) => {
-   
-      console.log(content +" "+ to + time );
-      //sendMesseges.push({content});
-       //console.log('Updated sendMesseges:', sendMesseges); 
-      // socket.emit('sended-messege', sendMesseges);
-     
-        socket.to(to).emit('individual-messege', {
-            content,
-            from: socket.id,
-            time,
-        });
-     });
-    });
-
+    
     //group/room chats
-    socket.on('join-room', (roomId: string) => {
+    socket.on('join-room', (roomId: string, username: string) => {
         if(roomId){
            
             socket.join(roomId);
@@ -127,11 +93,11 @@ io.on('connection', (socket: Socket) => {
         }
         
     })
-
+  
     
     socket.on('messege-data', (data: MessegeData) =>{
-      
-
+      console.log(data);    
+  
       if(data){ 
         console.log(`messege from ${data.username} messege is ${data.messege} messege is for room ${data.roomId}`);
     
@@ -162,17 +128,16 @@ io.on('connection', (socket: Socket) => {
     socket.on('disconnect', () => {
         console.log(`a user with id: ${socket.id} disconnected `);
 
-        //removing disconnected users from users array
-        users = users.filter(user => user.userId !== socket.id);
-        io.emit('users', users);
-
        //removing disconnected groupUsers from groupusers array
        
         
+
         socket.broadcast.emit('user disconnected', { userID: socket.id });
     });
+
+   
 })
-     
+      
    
 server.listen(port, () => {
     console.log('server is listening');

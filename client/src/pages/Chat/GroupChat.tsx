@@ -1,9 +1,13 @@
 import { IoSendOutline } from "react-icons/io5";
 import { Socket } from "socket.io-client";
-import { useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ScrollToBottom from "react-scroll-to-bottom";
 import { MdCloudUpload } from "react-icons/md";
+import EmojiPicker from 'emoji-picker-react';
+import { MdEmojiEmotions } from "react-icons/md";
+import { FcVideoCall } from "react-icons/fc";
+import { useNavigate } from "react-router-dom";
 
 interface GroupChatProps{
   socket: Socket;
@@ -18,6 +22,7 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
   const [messege, setMessege] = useState<string>('');
   const [file, setFile] = useState<File | null>();
   const [messegeList, setMessegeList] = useState<any[]>([]);
+  const [imageView, setImageView] = useState<boolean>(false);
   
   interface MessegeData{
     username: string;
@@ -70,6 +75,7 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
           file: base64,
           username,
           roomId,
+
           userId: socket.id
         }); 
       
@@ -80,6 +86,8 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
 
 
  const sendMessege = () => {
+
+    setImageView(false);
 
     if(!messege && !file){
       return;
@@ -113,23 +121,31 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
       alert('username and roomId cannot find');
     }
       
-  }
-
+ }
+  const isBase64 = (messege: string) => messege.startsWith('data:'); //startsWith function returns true or false as messege starts with specified word in the string. because Base64 encoded files always start with data:
+  
   console.log(messegeList);
 
-  const isBase64 = (messege: string) => messege.startsWith('data:'); //startsWith function returns true or false as messege starts with specified word in the string. because Base64 encoded files always start with data:
+  const imojiState = () => {
+     setImageView(true);   
+  }
 
+  const imojiClose = () => {
+    setImageView(false);
+  }
+  
   return (
     
     <section className='bg-white h-screen flex flex-col py-[60px]'>
     {/* Chat messages container */}
     <div className='w-[50%] mx-auto bg-[#dadada] flex-1 overflow-hidde h-40 '>
+    
       <ScrollToBottom className='h-full px-4 '>
         <h1 className='text-2xl  fixed'>Messages</h1>
         <div className='flex flex-col gap-4 mt-8'>
           {messegeList?.map((userMessegeList: MessegeData) => (
             
-            <div
+            <div onClick={imojiClose}
               className={`${
                 username === userMessegeList.username
                   ? 'bg-green-300 ml-auto'
@@ -154,12 +170,19 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
             </div>
           ))}
         </div>
+   {  imageView ?   
+    <div className="mr-[130px] lg:ml-[10px]">
+    <EmojiPicker className="h-[-120px] " onEmojiClick={(e) => setMessege(messege + e.emoji)}/>
+    </div> : ''
+      }
       </ScrollToBottom>
 
      
     </div>
+    
       {/* input section */}
-         <div className='w-[50%] mx-auto bg-gray-100 h-12 flex items-center p-3 gap-3'>
+         <div className='w-[50%] mx-auto bg-gray-100 h-12 flex items-center p-3 gap-0'>
+         
            <input type='file'   
              onChange={handleFileUpload} className='hidden '
              id='fileInput'
@@ -167,7 +190,8 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
            <label htmlFor='fileInput' className='cursor-pointer mt-3 ml-' ><MdCloudUpload className='text-orange-700 lg:w-[90%]'/></label>
             <input type='text' className='mt-4 bg-slate-400 rounded-2xl w-[300px]' value={messege} onChange={e => setMessege(e.target.value)} placeholder='type a messege' />
             
-            <button className='mt-4 mr-8 bg-blue-500   text-white' onClick={sendMessege}><IoSendOutline /></button>
+            <button className='mt-4 ml-[-18px] bg-blue-500 h-5  text-white mx-1' onClick={imojiState}><MdEmojiEmotions /></button>
+            <button className='mt-4 mr-[20px] bg-blue-500 h-5  text-white' onClick={sendMessege}><IoSendOutline /></button>
         </div>
         
  
