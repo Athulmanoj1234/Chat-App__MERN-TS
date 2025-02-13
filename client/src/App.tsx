@@ -11,7 +11,7 @@ function App() {
   
   const socket = io('http://localhost:4002', {
     reconnection: true,
-    reconnectionAttempts: 5,
+    //reconnectionAttempts: 5,
     reconnectionDelay: 1000,
   });
   socket.on('connect', () => {

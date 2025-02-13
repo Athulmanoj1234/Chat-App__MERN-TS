@@ -28,7 +28,10 @@ const port: number = 4002;
 
     app.use('/uploads', express.static('uploads'));
  */
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5174',
+    methods: ['GET', 'POST']
+}));
 
 declare module 'socket.io'{ //This tells TypeScript that you are augmenting the types of the socket.io module, specifically the Socket interface. Without this, TypeScript would have no knowledge of your custom changes to the Socket object. whenever we need to add new properties we need to sue decalre module
     interface Socket  {
@@ -39,7 +42,7 @@ declare module 'socket.io'{ //This tells TypeScript that you are augmenting the 
 
 const io = new Server(server, {
     cors: {
-        origin: ['http://localhost:5173', 'http://localhost:5173'],
+        origin: ['http://localhost:5173', 'http://localhost:5174'],
         methods: ['GET', 'POST']
     }
 })

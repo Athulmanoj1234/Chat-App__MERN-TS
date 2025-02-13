@@ -8,6 +8,8 @@ import EmojiPicker from 'emoji-picker-react';
 import { MdEmojiEmotions } from "react-icons/md";
 import { FcVideoCall } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { response } from "express";
 
 interface GroupChatProps{
   socket: Socket;
@@ -15,7 +17,6 @@ interface GroupChatProps{
 
 const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
 
-  
   const location = useLocation();
   const {username, roomId} = location.state || {};
 
@@ -23,6 +24,10 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
   const [file, setFile] = useState<File | null>();
   const [messegeList, setMessegeList] = useState<any[]>([]);
   const [imageView, setImageView] = useState<boolean>(false);
+  const [isManglish, setIsManglish] = useState<boolean>(false);
+  const [manglishWords, SetmanglishWords] = useState<string[]>([]);
+
+  const manglishIcon = "https://www.manglish.app/icon.webp";
   
   interface MessegeData{
     username: string;
@@ -63,6 +68,14 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
 
   },[socket]);
 
+  useEffect(()=> {
+    axios.get(`https://api.varnamproject.com/tl/ml/${messege}`)
+     .then(response=> {
+      console.log(response.data.result);
+      SetmanglishWords(response.data.result);
+     });
+  }, [messege])
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {  //current event will be received ie with current event current input value also received
      
      const file = event.target.files?.[0];
@@ -92,7 +105,7 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
     if(!messege && !file){
       return;
     }
-
+    
     if(username !== '' && roomId !== ''){
       const messegeData: MessegeData = {
         username: username,
@@ -134,6 +147,16 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
     setImageView(false);
   }
   
+  const handleManglish = ()=> {
+    console.log("manglish clicked");
+    setIsManglish(true);
+  }
+
+  const handleMalClicked = (malWords: string)=> {
+    setMessege(malWords);
+    setIsManglish(false);
+  }
+
   return (
     
     <section className='bg-white h-screen flex flex-col py-[60px]'>
@@ -143,6 +166,12 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
       <ScrollToBottom className='h-full px-4 '>
         <h1 className='text-2xl  fixed'>Messages</h1>
         <div className='flex flex-col gap-4 mt-8'>
+        {isManglish && manglishWords?.map(malWords=> (
+       <div className="flex flex-col">
+        <button onClick={()=> {handleMalClicked(malWords)}}>{malWords}</button>
+       </div>
+       ) )
+        }
           {messegeList?.map((userMessegeList: MessegeData) => (
             
             <div onClick={imojiClose}
@@ -170,32 +199,31 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
             </div>
           ))}
         </div>
+        
    {  imageView ?   
     <div className="mr-[130px] lg:ml-[10px]">
     <EmojiPicker className="h-[-120px] " onEmojiClick={(e) => setMessege(messege + e.emoji)}/>
     </div> : ''
       }
       </ScrollToBottom>
-
-     
     </div>
     
-      {/* input section */}
+    
          <div className='w-[50%] mx-auto bg-gray-100 h-12 flex items-center p-3 gap-0'>
          
            <input type='file'   
-             onChange={handleFileUpload} className='hidden '
+             onChange={handleFileUpload} className='hidden'
              id='fileInput'
            />
+           <img src={manglishIcon} className="h-5 w-5 mt-2 mr-2" alt="" onClick={handleManglish}/>
            <label htmlFor='fileInput' className='cursor-pointer mt-3 ml-' ><MdCloudUpload className='text-orange-700 lg:w-[90%]'/></label>
-            <input type='text' className='mt-4 bg-slate-400 rounded-2xl w-[300px]' value={messege} onChange={e => setMessege(e.target.value)} placeholder='type a messege' />
+           <input type='text' className='mt-4 bg-slate-400 rounded-2xl w-[300px]' value={messege} onChange={e => setMessege(e.target.value)} placeholder='type a messege' />
             
             <button className='mt-4 ml-[-18px] bg-blue-500 h-5  text-white mx-1' onClick={imojiState}><MdEmojiEmotions /></button>
             <button className='mt-4 mr-[20px] bg-blue-500 h-5  text-white' onClick={sendMessege}><IoSendOutline /></button>
-        </div>
-        
- 
-      </section>
-   )
+          
+          </div>
+        </section>
+  )
 }
 export default GroupChat;
