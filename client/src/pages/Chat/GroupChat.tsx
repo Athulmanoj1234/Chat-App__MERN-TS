@@ -20,12 +20,14 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
   const location = useLocation();
   const {username, roomId} = location.state || {};
 
-  const [messege, setMessege] = useState<string>('');
+  const [messege, setMessege] = useState<string>("");
   const [file, setFile] = useState<File | null>();
   const [messegeList, setMessegeList] = useState<any[]>([]);
   const [imageView, setImageView] = useState<boolean>(false);
   const [isManglish, setIsManglish] = useState<boolean>(false);
   const [manglishWords, SetmanglishWords] = useState<string[]>([]);
+  const [malInput, setMalInput] = useState<string>("");
+  const [manglishClickCount, setManglishClickCount] = useState<number>(0);
 
   const manglishIcon = "https://www.manglish.app/icon.webp";
   
@@ -68,8 +70,17 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
 
   },[socket]);
 
+  const splittedMessege = messege.split(" ");
+  console.log(splittedMessege);
+  
+  const messegeIndex = splittedMessege.length - 1;
+  const lastWord = splittedMessege[messegeIndex];
+  //setMessege(splittedMessege.join());
+  console.log(lastWord);
+  //setMessege(messege + lastWord);
+
   useEffect(()=> {
-    axios.get(`https://api.varnamproject.com/tl/ml/${messege}`)
+    axios.get(`https://api.varnamproject.com/tl/ml/${lastWord}`)
      .then(response=> {
       console.log(response.data.result);
       SetmanglishWords(response.data.result);
@@ -99,8 +110,7 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
 
 
  const sendMessege = () => {
-
-    setImageView(false);
+  setImageView(false);
 
     if(!messege && !file){
       return;
@@ -146,16 +156,48 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
   const imojiClose = () => {
     setImageView(false);
   }
-  
-  const handleManglish = ()=> {
+   //new update for manglish button icon deciding opacity ie true or false based on odd or even count
+  const handleManglishOn = ()=> {
     console.log("manglish clicked");
+    setManglishClickCount(prevCount=> prevCount + 1);
     setIsManglish(true);
   }
 
   const handleMalClicked = (malWords: string)=> {
-    setMessege(malWords);
-    setIsManglish(false);
+    //console.log(malWords);
+    setMalInput(previousMalInput=> previousMalInput + " " + malWords);
+    
+    //setIsManglish(false);
   }
+  console.log(malInput);
+ 
+  /*useEffect(()=> {
+    if(!messege || manglishWords.length == 0){
+      return;
+    }
+      const newSplittedMessege = messege.split(" ");
+      const updatedMessege = newSplittedMessege.map(word=> {
+        const manglishWord = manglishWords.find(mWord=> 
+          word.toLocaleLowerCase() === mWord.toLocaleLowerCase());
+          return manglishWord || word;
+      })
+      setMessege(updatedMessege.join(" "));
+  }, [messege, manglishWords]); */
+
+  useEffect(()=> {
+    setMessege(malInput);
+  }, [malInput]);
+
+  console.log(manglishClickCount);
+
+  useEffect(() => {
+    if(manglishClickCount % 2 == 0){
+      setIsManglish(false);
+      console.log("it is true");
+    }else{
+      setIsManglish(true);
+    }
+  }, [manglishClickCount]);
 
   return (
     
@@ -166,7 +208,7 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
       <ScrollToBottom className='h-full px-4 '>
         <h1 className='text-2xl  fixed'>Messages</h1>
         <div className='flex flex-col gap-4 mt-8'>
-        {isManglish && manglishWords?.map(malWords=> (
+        {isManglish && manglishWords?.map((malWords: string)=> (
        <div className="flex flex-col">
         <button onClick={()=> {handleMalClicked(malWords)}}>{malWords}</button>
        </div>
@@ -215,7 +257,7 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
              onChange={handleFileUpload} className='hidden'
              id='fileInput'
            />
-           <img src={manglishIcon} className="h-5 w-5 mt-2 mr-2" alt="" onClick={handleManglish}/>
+           <img src={manglishIcon} className={`h-5 w-5 mt-2 mr-2 ${isManglish ? 'opacity-90' : 'opacity-20'} `} alt="" onClick={()=> {handleManglishOn()}}/>
            <label htmlFor='fileInput' className='cursor-pointer mt-3 ml-' ><MdCloudUpload className='text-orange-700 lg:w-[90%]'/></label>
            <input type='text' className='mt-4 bg-slate-400 rounded-2xl w-[300px]' value={messege} onChange={e => setMessege(e.target.value)} placeholder='type a messege' />
             
