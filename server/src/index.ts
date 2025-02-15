@@ -5,6 +5,8 @@ import cors from 'cors';
 import path from 'path';
 import multer, {diskStorage, Multer} from 'multer';;
 import { Request, Response} from 'express';
+import axios from 'axios';
+import { error } from 'console';
 
 
 
@@ -29,7 +31,7 @@ const port: number = 4002;
     app.use('/uploads', express.static('uploads'));
  */
 app.use(cors({
-    origin: 'http://localhost:5174',
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
     methods: ['GET', 'POST']
 }));
 
@@ -84,64 +86,68 @@ interface callData{
 io.on('connection', (socket: Socket) => {
     console.log(`${socket.id} connected`);
 
-    
-    //group/room chats
     socket.on('join-room', (roomId: string, username: string) => {
         if(roomId){
-           
             socket.join(roomId);
             console.log(`user with id ${socket.id} have joined room id ${roomId}`);
         }else{
             console.log('roomId is not received');
         }
-        
     })
   
-    
     socket.on('messege-data', (data: MessegeData) =>{
       console.log(data);    
-  
-      if(data){ 
-        console.log(`messege from ${data.username} messege is ${data.messege} messege is for room ${data.roomId}`);
-    
-    io.in(data.roomId).emit('messege', data);
-        
-      }else{
-        console.log('messege data didnt recived');
-      }
+        if(data){ 
+            console.log(`messege from ${data.username} messege is ${data.messege} messege is for room ${data.roomId}`);
+            io.in(data.roomId).emit('messege', data);
+        }else{
+            console.log('messege data didnt recived');
+        }
  
-    })  
-
-    socket.on('fileUpload', (data: Data) => {
-        
-        console.log('File uploaded:', data.file);
-       
+    })
     
-    io.to(data.roomId).emit('messege', {
+    app.get('/malwords/:lastMalWord', async (req: Request, res: Response)=> {
+        const { lastMalWord } = req.params;
+        //console.log(lastMalWord);
+        if(lastMalWord){
+        const response = await axios.get(`https://inputtools.google.com/request?text=${lastMalWord}&itc=ml-t-i0-und&num=13&cp=0&cs=1&ie=utf-8&oe=utf-8&app=demopage`)
+        //console.log(response.data);
+        //const parsedObj = JSON.stringify(response.data);
+        const malResponse: [] = response.data;
+            if(malResponse.length){
+                const result = malResponse.map((malResult: string[])=> malResult[0][1]);
+                    console.log(result);
+                    if(result.length > 0){
+                        res.json(result);
+                    }else{
+                        res.json("no manglish words");
+                    }
+            }else{
+                res.status(400).json({ messege: "malayalam word didnt reached to server" });
+            }
+        }else{
+            res.status(500).json("failed to fetch data");
+        }
+    })
+    
+    socket.on('fileUpload', (data: Data) => {
+        console.log('File uploaded:', data.file);
+        io.to(data.roomId).emit('messege', {
         username: data.username,
         userId: data.userId,
         roomId: data.roomId,
         messege: data.file,
         time: new Date(Date.now()).getHours() + ':' + new Date(Date.now()).getMinutes()
     })
-
- })
+    })
  
-
     socket.on('disconnect', () => {
         console.log(`a user with id: ${socket.id} disconnected `);
-
-       //removing disconnected groupUsers from groupusers array
-       
-        
-
+        //removing disconnected groupUsers from groupusers array
         socket.broadcast.emit('user disconnected', { userID: socket.id });
     });
-
-   
 })
       
-   
 server.listen(port, () => {
     console.log('server is listening');
 });
