@@ -103,7 +103,6 @@ io.on('connection', (socket: Socket) => {
         }else{
             console.log('messege data didnt recived');
         }
- 
     })
     
     app.get('/malwords/:lastMalWord', async (req: Request, res: Response)=> {
@@ -117,13 +116,13 @@ io.on('connection', (socket: Socket) => {
                     if(result.length > 0){
                         res.status(200).json(result);
                     }else{
-                        res.status(500).json({ messege: "cant find any manglish word" });
+                        res.status(404).json({ messege: "cant find any manglish word" });
                     }
             }else{
-            res.status(400).json({ messege: "malayalam word didnt reached to server" });
+            res.status(500).json({ messege: "google input api error" });
             }
         }else{
-            res.status(500).json("failed to fetch data");
+            res.status(404).json({ messege: "input is to be converted into manglish didnt received" });
         }
     })
     
