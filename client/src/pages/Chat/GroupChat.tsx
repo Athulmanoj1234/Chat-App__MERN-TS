@@ -154,10 +154,11 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
   }
 
   const handleMalClicked = (malWords: string)=> {
-    //setMessege("");
+    setMalInput(prevMalwords=> prevMalwords + " " + malWords);
     //console.log(malWords);
-    setMalInput(previousMalInput=> previousMalInput + " " + malWords);
-    
+    //setMalInput(prevWords=> prevWords + " " + malWords);
+    //setMalInput("");
+    //setMessege(malInput);
     //setIsManglish(false);
   }
   console.log(malInput);
@@ -220,7 +221,11 @@ const handleMessegeChange = (e: React.ChangeEvent<HTMLInputElement>)=> {
   },[messege, manglishWords])
 
   useEffect(()=> {
-    setMessege(malInput);
+    //const getMalWordSpecifivally = splittedMessege.filter(eachMixedWord=> !(eachMixedWord[0] >= "a" && eachMixedWord[0] <= "z"));
+    //console.log(getMalWordSpecifivally); 
+    console.log(messege);
+    //setMessege(splittedMessege.join(" ") + " " + malInput);
+    setMessege(malInput)
   }, [malInput]);
 
   console.log(manglishClickCount);

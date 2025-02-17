@@ -2,38 +2,19 @@ import {createServer} from 'http';
 import { Server, Socket } from 'socket.io';
 import express from 'express';
 import cors from 'cors';
-import path from 'path';
-import multer, {diskStorage, Multer} from 'multer';;
-import { Request, Response} from 'express';
-import axios from 'axios';
-import { error } from 'console';
 
 
-
-const app = express();
+export const app = express();
 const server = createServer(app);
 const port: number = 4002;
+const manglishWordsRouter = require('./routes/manglishWords.route');
 
-//the part will explain how files will be stored when uploaded.
-/*const storage = multer.diskStorage({
-    //destination function is to determine where the file is to be stored. 
-    destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void): void => {
-        cb(null, '/uploads');
-    },
-    //filename function to determine the name of the file
-    filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void): void => {
-        cb(null, Date.now() + path.extname(file.originalname));//last jpg or png path is added to files original name
-        }
-    });
-    
-    const upload = multer({ storage });
-
-    app.use('/uploads', express.static('uploads'));
- */
 app.use(cors({
     origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
     methods: ['GET', 'POST']
 }));
+
+app.use('/malwords', manglishWordsRouter);
 
 declare module 'socket.io'{ //This tells TypeScript that you are augmenting the types of the socket.io module, specifically the Socket interface. Without this, TypeScript would have no knowledge of your custom changes to the Socket object. whenever we need to add new properties we need to sue decalre module
     interface Socket  {
@@ -104,28 +85,7 @@ io.on('connection', (socket: Socket) => {
             console.log('messege data didnt recived');
         }
     })
-    
-    app.get('/malwords/:lastMalWord', async (req: Request, res: Response)=> {
-        const { lastMalWord } = req.params;
-        if(lastMalWord){
-        const response = await axios.get(`https://inputtools.google.com/request?text=${lastMalWord}&itc=ml-t-i0-und&num=13&cp=0&cs=1&ie=utf-8&oe=utf-8&app=demopage`)
-        const malResponse: [] = response.data;
-            if(malResponse.length){
-                const result = malResponse.map((malResult: string[])=> malResult[0][1]);
-                console.log(result);
-                    if(result.length > 0){
-                        res.status(200).json(result);
-                    }else{
-                        res.status(404).json({ messege: "cant find any manglish word" });
-                    }
-            }else{
-            res.status(500).json({ messege: "google input api error" });
-            }
-        }else{
-            res.status(404).json({ messege: "input is to be converted into manglish didnt received" });
-        }
-    })
-    
+        
     socket.on('fileUpload', (data: Data) => {
         console.log('File uploaded:', data.file);
         io.to(data.roomId).emit('messege', {
