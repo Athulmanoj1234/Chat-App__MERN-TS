@@ -237,7 +237,7 @@ const handleMessegeChange = (e: React.ChangeEvent<HTMLInputElement>)=> {
     }else{  //if odd then enabling manglish keyboard
       setIsManglish(true);
     }
-  }, [manglishClickCount]);
+  }, [manglishClickCount]); 
 
   return (
     
