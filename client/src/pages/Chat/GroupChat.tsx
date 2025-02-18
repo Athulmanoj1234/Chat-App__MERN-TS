@@ -6,11 +6,10 @@ import ScrollToBottom from "react-scroll-to-bottom";
 import { MdCloudUpload } from "react-icons/md";
 import EmojiPicker from 'emoji-picker-react';
 import { MdEmojiEmotions } from "react-icons/md";
-import { FcVideoCall } from "react-icons/fc";
-import { useNavigate } from "react-router-dom";
+import { FaAffiliatetheme } from "react-icons/fa";
 import axios from "axios";
-import { response } from "express";
-import { LayoutGroup } from "framer-motion";
+import env from "react-dotenv";
+import { serverUrl } from "../../constants/constants";
 
 interface GroupChatProps{
   socket: Socket;
@@ -29,6 +28,7 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
   const [manglishWords, SetmanglishWords] = useState<string[]>([]);
   const [malInput, setMalInput] = useState<string>("");
   const [manglishClickCount, setManglishClickCount] = useState<number>(0);
+  const [manglishTheme, setManglishTheme] = useState(false);
   const lastWordRef = useRef<string>('');
 
   const manglishIcon = "https://www.manglish.app/icon.webp";
@@ -74,7 +74,7 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
   //setMessege(messege + lastWord);
 
   useEffect(()=> {
-    axios.get(`http://localhost:4002/malwords/${lastMalWord}`)
+    axios.get(`${serverUrl}/malwords/${lastMalWord}`)
      .then(response=> {
       console.log(response.data[1]);
       SetmanglishWords(response.data[1]);
@@ -193,6 +193,10 @@ const handleMessegeChange = (e: React.ChangeEvent<HTMLInputElement>)=> {
   //lastWordRef.current = lastWord;
 }
 
+const handleManglishTheme =()=> {
+  setManglishTheme(prevTheme=> !prevTheme);
+}
+
   useEffect(()=> {
     if (!messege || manglishWords.length === 0) {
       return;
@@ -248,12 +252,6 @@ const handleMessegeChange = (e: React.ChangeEvent<HTMLInputElement>)=> {
       <ScrollToBottom className='h-full px-4 '>
         <h1 className='text-2xl  fixed'>Messages</h1>
         <div className='flex flex-col gap-4 mt-8'>
-        {isManglish && manglishWords?.map((malWords: string)=> (
-       <div className="flex flex-col">
-        <button onClick={()=> {handleMalClicked(malWords)}}>{malWords}</button>
-       </div>
-       ) )
-        }
           {messegeList?.map((userMessegeList: MessegeData) => (
             
             <div onClick={imojiClose}
@@ -289,23 +287,26 @@ const handleMessegeChange = (e: React.ChangeEvent<HTMLInputElement>)=> {
       }
       </ScrollToBottom>
     </div>
-    
-    
-         <div className='w-[50%] mx-auto bg-gray-100 h-12 flex items-center p-3 gap-0'>
-         
-           <input type='file'   
+    <div className={`${manglishTheme ? 'flex justify-center bg-black text-green-700 gap-2 w-[50%] ml-[382px] flex-wrap'
+                    : 'flex justify-center bg-[#FAF1F5] text-black gap-4 w-[50%] ml-[382px] flex-wrap'}`}>
+      <button className={`${isManglish ? `mr-[720px] ${manglishTheme ? ' text-white' : 'text-black' } fixed mt-1 h-4 w-5` : 'hidden'}`} onClick={handleManglishTheme}><FaAffiliatetheme /></button>
+      { isManglish && ( manglishWords.map((eachManglishWord: string)=>(
+        <button onClick={()=> handleMalClicked(eachManglishWord)} className="font-bold">{eachManglishWord}</button>
+        ) ) ) }
+    </div>
+        <div className='w-[50%] mx-auto bg-gray-100 h-12 flex items-center p-3 gap-0'>
+          <input type='file'   
              onChange={handleFileUpload} className='hidden'
              id='fileInput'
            />
-           <img src={manglishIcon} className={`h-5 w-5 mt-2 mr-2 ${isManglish ? 'opacity-90' : 'opacity-20'} `} alt="" onClick={()=> {handleManglishOn()}}/>
-           <label htmlFor='fileInput' className='cursor-pointer mt-3 ml-' ><MdCloudUpload className='text-orange-700 lg:w-[90%]'/></label>
-           <input type='text' className='mt-4 bg-slate-400 rounded-2xl w-[300px]' value={messege} onChange={handleMessegeChange} placeholder='type a messege' />
-            
-            <button className='mt-4 ml-[-18px] bg-blue-500 h-5  text-white mx-1' onClick={imojiState}><MdEmojiEmotions /></button>
-            <button className='mt-4 mr-[20px] bg-blue-500 h-5  text-white' onClick={sendMessege}><IoSendOutline /></button>
+          <img src={manglishIcon} className={`h-5 w-5 mr-2 ${isManglish ? 'opacity-90' : 'opacity-20'} `} alt="" onClick={()=> {handleManglishOn()}}/>
+          <label htmlFor='fileInput' className='cursor-pointer mr-1' ><MdCloudUpload className='text-orange-700 lg:w-[90%]'/></label>
+          <input type='text' className='bg-slate-400 rounded-2xl w-[300px]' value={messege} onChange={handleMessegeChange} placeholder='type a messege' />
+          <button className='ml-[-18px] bg-blue-500 h-5  text-white mx-1' onClick={imojiState}><MdEmojiEmotions /></button>
+          <button className='mr-[20px] bg-blue-500 h-5  text-white' onClick={sendMessege}><IoSendOutline /></button>
           
-          </div>
-        </section>
+        </div>
+    </section>
   )
 }
 export default GroupChat;

@@ -1,11 +1,16 @@
 import { Request, Response } from "express";
 import axios from "axios";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const manglishWordSuggestion = async (req: Request, res: Response)=> {
     const { lastMalWord } = req.params;
+    console.log(process.env.GOOGLE_INPUT_QUERY_STRING);
     console.log(lastMalWord);
+    
         if(lastMalWord){
-            const response = await axios.get(`https://inputtools.google.com/request?text=${lastMalWord}&itc=ml-t-i0-und&num=13&cp=0&cs=1&ie=utf-8&oe=utf-8&app=demopage`)
+            const response = await axios.get(`${process.env.GOOGLE_INPUT_BASE_URL}?text=${lastMalWord}&${process.env.GOOGLE_INPUT_QUERY_STRING}`);
             const malResponse: [] = response.data;
                 if(malResponse.length){
                     const result = malResponse.map((malResult: string[])=> malResult[0][1]);

@@ -2,14 +2,14 @@ import { Routes, Route } from "react-router-dom";
 import Banner from "./components/Banner/Banner";
 import GroupRegister from "./pages/LoginRegister/GroupRegister";
 import GroupChat from "./pages/Chat/GroupChat";
-
+import { serverUrl } from "./constants/constants";
 
 import io from 'socket.io-client';
 
 
 function App() {
   
-  const socket = io('http://localhost:4002', {
+  const socket = io(`${serverUrl}`, {
     reconnection: true,
     //reconnectionAttempts: 5,
     reconnectionDelay: 1000,
