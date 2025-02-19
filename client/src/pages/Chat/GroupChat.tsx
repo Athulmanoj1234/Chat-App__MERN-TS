@@ -10,6 +10,9 @@ import { FaAffiliatetheme } from "react-icons/fa";
 import axios from "axios";
 import env from "react-dotenv";
 import { serverUrl } from "../../constants/constants";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@radix-ui/react-label";
 
 interface GroupChatProps{
   socket: Socket;
@@ -54,10 +57,8 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
 
     socket.on('messege', (data: MessegeData) => {
       console.log(`messege is ${data.messege} received from ${data.username} `);
-      //if(data.userId == socket.id){
-       // const selfMesseges = {...data, }
-        setMessegeList((prevMessegeList: MessegeData[]) => [...prevMessegeList, data]);
-       console.log(messegeList);
+      setMessegeList((prevMessegeList: MessegeData[]) => [...prevMessegeList, data]);
+      console.log(messegeList);
        });
        return () => {
         socket.off('messege');
@@ -103,10 +104,10 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
   };
 
 
- const sendMessege = () => {
-  setMalInput("");
-  setImageView(false);
-  if(!messege && !file){
+  const sendMessege = () => {
+    setMalInput("");
+    setImageView(false);
+    if(!messege && !file){
       return;
     }
     if(username !== '' && roomId !== ''){
@@ -126,14 +127,13 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
           },
         } as unknown as React.ChangeEvent<HTMLInputElement>);
         setFile(null);
-      }//if not file is selected then will be text it will be sented
+      }
       socket.emit('messege-data', messegeData);
       setMessege('');
-      //setMalInput('');
     }else{
       alert('username and roomId cannot find');
     }
- }
+  }
 
   const isBase64 = (messege: string) => messege.startsWith('data:'); //startsWith function returns true or false as messege starts with specified word in the string. because Base64 encoded files always start with data:
   
@@ -150,109 +150,55 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
   const handleManglishOn = ()=> {
     console.log("manglish clicked");
     setIsManglish(prevState=> !prevState);
-    //setIsManglish(true);
   }
 
   const handleMalClicked = (malWords: string)=> {
-    setMalInput(prevMalwords=> prevMalwords + " " + malWords);
-    //console.log(malWords);
-    //setMalInput(prevWords=> prevWords + " " + malWords);
-    //setMalInput("");
-    //setMessege(malInput);
-    //setIsManglish(false);
+    setMalInput(prevMessege=> prevMessege + " " + malWords);
+    console.log(messege);
   }
+
   console.log(malInput);
  
-  /*useEffect(()=> {
-    if(!messege || manglishWords.length == 0){
-      return;
-    }
-      const newSplittedMessege = messege.split(" ");
-      const updatedMessege = newSplittedMessege.map(word=> {
-      if(word.startsWith("")){
-        console.log(manglishWords[0]);
-        console.log("word finded");
-        setMessege(manglishWords[0]);
-        const manglishWord = manglishWords.find(mWord=> 
-          word.toLocaleLowerCase() === mWord.toLocaleLowerCase());
-          return manglishWord || word; 
-      } 
-      })
-      
-      //setMessege(updatedMessege.join(" "));
-  }, [messege, manglishWords]); 
- */ 
-  
-const handleMessegeChange = (e: React.ChangeEvent<HTMLInputElement>)=> {
-  const newMessege = e.target.value;
-  setMessege(newMessege);
+  const handleMessegeChange = (e: React.ChangeEvent<HTMLInputElement>)=> {
+    const newMessege = e.target.value;
+    setMessege(newMessege);
+  }
 
-  //const lastWord = newMessege.split(" ").pop() || "";
-  //console.log(lastWord); 
-  //updating the useRef as curent lastword word as lastWord 
-  //lastWordRef.current = lastWord;
-}
-
-const handleManglishTheme =()=> {
-  setManglishTheme(prevTheme=> !prevTheme);
-}
+  const handleManglishTheme =()=> {
+    setManglishTheme(prevTheme=> !prevTheme);
+  }
 
   useEffect(()=> {
     if (!messege || manglishWords.length === 0) {
       return;
     }
-
-    //const lastWord = lastWordRef.current;
-    
-    /*if(lastWord.trim().length === 0 || lastWord.startsWith(" ")){
-      const manglishMatch = manglishWords[0];
-      const updatedMessege = messege.trim() + " " + manglishMatch;
-      setMessege(updatedMessege);
-    }else{ */
-      //if (lastWord.trim().length === 0) {
-        //return; // Ignore if there's no word
-      //}
-      //console.log(lastWord.toLowerCase());
-      /*const manglishMatch = manglishWords.find((word) =>
-        word.toLowerCase() === lastWord.toLowerCase()
-      );*/
-      if(manglishWords){
-        //const updatedMessege = messege.replace(lastMalWord, manglishWords[0]);
-        //setMessege(updatedMessege);
+    if(manglishWords){
         console.log(lastMalWord, manglishWords[0]);
       }
-    //}
   },[messege, manglishWords])
 
   useEffect(()=> {
-    //const getMalWordSpecifivally = splittedMessege.filter(eachMixedWord=> !(eachMixedWord[0] >= "a" && eachMixedWord[0] <= "z"));
-    //console.log(getMalWordSpecifivally); 
+    setMessege(malInput);
     console.log(messege);
-    //setMessege(splittedMessege.join(" ") + " " + malInput);
-    setMessege(malInput)
   }, [malInput]);
 
   console.log(manglishClickCount);
 
-
   return (
-    
     <section className='bg-white h-screen flex flex-col py-[60px]'>
     {/* Chat messages container */}
-    <div className='w-[50%] mx-auto bg-[#dadada] flex-1 overflow-hidde h-40 '>
-    
-      <ScrollToBottom className='h-full px-4 '>
-        <h1 className='text-2xl  fixed'>Messages</h1>
-        <div className='flex flex-col gap-4 mt-8'>
-          {messegeList?.map((userMessegeList: MessegeData) => (
-            
-            <div onClick={imojiClose}
+      <div className='w-[50%] mx-auto bg-[#dadada] flex-1 overflow-hidde h-40 '>
+        <ScrollToBottom className='h-full px-4 '>
+          <h1 className='text-2xl  fixed'>Messages</h1>
+          <div className='flex flex-col gap-4 mt-8'>
+            {messegeList?.map((userMessegeList: MessegeData) => (
+              <div onClick={imojiClose}
               className={`${
                 username === userMessegeList.username
                   ? 'bg-green-300 ml-auto'
                   : 'bg-blue-300 mr-auto'
               } p-2 rounded-md`}
-            >
+              >
               <p>
                 {isBase64(userMessegeList.messege) ? (
                   <img
@@ -264,42 +210,36 @@ const handleManglishTheme =()=> {
                   userMessegeList.messege
                 )}
               </p>
-              
               <p className={`text-xl ${userMessegeList.username ? 'text-orange-700 text-xs' : ''}`}>
                 {isBase64(userMessegeList.messege) ? '' : (userMessegeList.username) }  
               {' ' + userMessegeList.time}</p>
             </div>
           ))}
         </div>
-        
-   {  imageView ?   
-    <div className="mr-[130px] lg:ml-[10px]">
-    <EmojiPicker className="h-[-120px] " onEmojiClick={(e) => setMessege(messege + e.emoji)}/>
-    </div> : ''
-      }
-      </ScrollToBottom>
-    </div>
-    { isManglish ? (
-    <div className={`${manglishTheme ? 'flex justify-center bg-black text-green-700 gap-2 w-[50%] ml-[382px] flex-wrap'
+        { imageView ?   
+          <div className="mr-[130px] lg:ml-[10px]">
+            <EmojiPicker className="h-[-120px] " onEmojiClick={(e) => setMessege(messege + e.emoji)}/>
+          </div> : ''
+        }
+        </ScrollToBottom>
+      </div>
+      { isManglish ? (
+        <div className={`${manglishTheme ? 'flex justify-center bg-black text-green-700 gap-2 w-[50%] ml-[382px] flex-wrap'
                     : 'flex justify-center bg-[#FAF1F5] text-black gap-4 w-[50%] ml-[382px] flex-wrap'}` }>
-    <button className={`${isManglish ? `mr-[720px] ${manglishTheme ? ' text-white' : 'text-black' } fixed mt-1 h-4 w-5` : " " }`} onClick={handleManglishTheme}><FaAffiliatetheme /></button>
-    { isManglish && ( manglishWords.map((eachManglishWord: string)=>(
-        <button onClick={()=> handleMalClicked(eachManglishWord)} className="font-bold">{eachManglishWord}</button>
+          <Button className={`${manglishTheme ? buttonVariants({ variant: "lightTheme" }) : buttonVariants({ variant: "darkTheme" })}`} onClick={handleManglishTheme}><FaAffiliatetheme /></Button>
+        { isManglish && ( manglishWords.map((eachManglishWord: string)=>(
+          <Button onClick={()=> handleMalClicked(eachManglishWord)} className={buttonVariants({variant: "eachManglishWord"})}>{eachManglishWord}</Button>
         ) ) ) }
-    </div>
-     ) : "" }
-        <div className='w-[50%] mx-auto bg-gray-100 h-12 flex items-center p-3 gap-0'>
-          <input type='file'   
-             onChange={handleFileUpload} className='hidden'
-             id='fileInput'
-           />
-          <img src={manglishIcon} className={`h-5 w-5 mr-2 ${isManglish == true ? 'opacity-90' : 'opacity-20'} `} alt="" onClick={()=> {handleManglishOn()}}/>
-          <label htmlFor='fileInput' className='cursor-pointer mr-1' ><MdCloudUpload className='text-orange-700 lg:w-[90%]'/></label>
-          <input type='text' className='bg-slate-400 rounded-2xl w-[300px]' value={messege} onChange={handleMessegeChange} placeholder='type a messege' />
-          <button className='ml-[-18px] bg-blue-500 h-5  text-white mx-1' onClick={imojiState}><MdEmojiEmotions /></button>
-          <button className='mr-[20px] bg-blue-500 h-5  text-white' onClick={sendMessege}><IoSendOutline /></button>
-          
         </div>
+      ) : " " }
+      <div className='w-[50%] mx-auto bg-gray-100 h-12 flex items-center p-3 gap-0'>
+        <Input type='file' onChange={handleFileUpload} className='' id='fileInput' />
+          <img src={manglishIcon} className={`h-5 w-5 mr-2 ${isManglish == true ? 'opacity-90' : 'opacity-20'} `} alt="" onClick={()=> {handleManglishOn()}}/>
+          <Label htmlFor='fileInput' ><MdCloudUpload className='text-orange-700 lg:w-[90%]'/></Label>
+          <Input type="text" value={messege} onChange={handleMessegeChange} placeholder='type a messege' />
+          <Button className={buttonVariants({ variant: "emojiEmotions", size: "emojiEmotions" })} onClick={imojiState}><MdEmojiEmotions /></Button>
+          <Button className={buttonVariants({ variant: "sendOutline", size: "sendOutline" })} onClick={sendMessege}><IoSendOutline /></Button>
+      </div>
     </section>
   )
 }

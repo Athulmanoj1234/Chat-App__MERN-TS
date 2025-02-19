@@ -1,8 +1,10 @@
 import { createServer } from 'http';
 import { Server } from "socket.io";
 import express from 'express';
-import cors from 'cors'
+import dotenv from "dotenv";
 import { Data, MessegeData } from 'typings/passport';
+
+dotenv.config()
 
 const app = express();
 const server = createServer(app);
@@ -10,13 +12,13 @@ const port: number = 4002;
 
 const io = new Server(server, {
     cors: {
-        origin: `${process.env.CLIENT_URL}`,
+        origin: [`${process.env.CLIENT_URL}`],
         methods: ['GET', 'POST']
     }
 })
 
 io.on('connection', (socket: any) => {
-    console.log(`${socket.id} connected`);
+    console.log(`${socket.id} connected`); 
 
     socket.on('join-room', (roomId: string, username: string) => {
         if(roomId){

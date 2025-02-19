@@ -12,7 +12,8 @@ const manglishWordsRouter = require('../src/routes/manglishWords.route');
 
 app.use(cors({
     credentials: true, 
-    origin: `${process.env.CLIENT_URL}`,  
+    origin: `${process.env.CLIENT_URL}`, 
+    methods: ["GET", "POST"]  
     }));
     
 app.use(express.json());

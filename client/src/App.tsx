@@ -8,8 +8,8 @@ import io from 'socket.io-client';
 
 
 function App() {
-  
-  const socket = io(`${serverUrl}`, {
+  console.log(serverUrl);
+  const socket = io(serverUrl, {
     reconnection: true,
     //reconnectionAttempts: 5,
     reconnectionDelay: 1000,
