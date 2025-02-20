@@ -2,7 +2,7 @@ import { createServer } from 'http';
 import { Server } from "socket.io";
 import express from 'express';
 import dotenv from "dotenv";
-import { Data, MessegeData } from 'typings/passport';
+import { Data, MessegeData } from 'typings/types';
 
 dotenv.config()
 
