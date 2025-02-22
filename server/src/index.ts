@@ -1,14 +1,14 @@
 import express from 'express';
 import cors from 'cors';
-import { Server } from 'socket.io';
-import {createServer} from 'http';
+import { Server } from 'socket.io'; // TODO: Remove this import as it is not used
+import {createServer} from 'http'; // TODO: Remove this import as it is not used
 import { server, app, io } from '../src/socket/socket';
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config(); // TODO: Move this env config to a common place and call dotenv.config() only in that place
 
-const port: number = 4002;
-const manglishWordsRouter = require('../src/routes/manglishWords.route');
+const port: number = 4002; // TODO: Use process.env for port
+const manglishWordsRouter = require('../src/routes/manglishWords.route'); // TODO: Why we are mixing import and require?
 
 app.use(cors({
     credentials: true, 
