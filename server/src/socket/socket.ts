@@ -8,7 +8,7 @@ dotenv.config()
 
 const app = express();
 const server = createServer(app);
-const port: number = 4002;
+const port: number = 4002; // TODO: Same as mentioned in src/index.ts, use process.env for port
 
 const io = new Server(server, {
     cors: {

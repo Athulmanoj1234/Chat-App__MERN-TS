@@ -10,7 +10,7 @@ export const manglishWordSuggestion = async (req: Request, res: Response)=> {
     console.log(lastMalWord);
     
         if(lastMalWord){
-            const response = await axios.get(`${process.env.GOOGLE_INPUT_BASE_URL}?text=${lastMalWord}&${process.env.GOOGLE_INPUT_QUERY_STRING}`);
+            const response = await axios.get(`${process.env.GOOGLE_INPUT_BASE_URL}?text=${lastMalWord}&${process.env.GOOGLE_INPUT_QUERY_STRING}`); // TODO: Use try-catch block for error handling, Query params should be passed as an object instead of string from env
             const malResponse: [] = response.data;
                 if(malResponse.length){
                     const result = malResponse.map((malResult: string[])=> malResult[0][1]);

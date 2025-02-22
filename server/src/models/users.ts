@@ -1,6 +1,6 @@
-import mongoose, {Document} from "mongoose";
+import mongoose, { Document } from "mongoose";
 
-const { Schema, model } = mongoose;
+const { Schema, model } = mongoose; // TODO: Remove if not used
 
 interface Iuser extends Document  {
     username: string,
