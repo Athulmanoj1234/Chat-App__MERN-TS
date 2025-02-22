@@ -1,14 +1,13 @@
 import { IoSendOutline } from "react-icons/io5";
 import { Socket } from "socket.io-client";
-import { Navigate, useLocation } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import ScrollToBottom from "react-scroll-to-bottom";
 import { MdCloudUpload } from "react-icons/md";
 import EmojiPicker from 'emoji-picker-react';
-import { MdEmojiEmotions } from "react-icons/md";
-import { FaAffiliatetheme } from "react-icons/fa";
+import { BsEmojiSmile } from "react-icons/bs";
+import { FaAffiliatetheme } from "react-icons/fa6";
 import axios from "axios";
-import env from "react-dotenv";
 import { serverUrl } from "../../constants/constants";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,8 +31,7 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
   const [malInput, setMalInput] = useState<string>("");
   const [manglishClickCount, setManglishClickCount] = useState<number>(0);
   const [manglishTheme, setManglishTheme] = useState(false);
-  const lastWordRef = useRef<string>('');
-
+  
   const manglishIcon = "https://www.manglish.app/icon.webp";
   
   interface MessegeData{
@@ -43,15 +41,6 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
     userId: string | undefined;
     time: string;
   }
-
-  interface GroupUsers{
-    username: string;
-    userId: string;
-    self: boolean;
-    roomId: string;
-    messeges: {content: string; fromSelf: boolean}[];
-  }
-
 
   useEffect(() => {
 
@@ -67,12 +56,9 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
 
   const splittedMessege = messege.split(" ");
   console.log(splittedMessege);
-  
   const messegeIndex = splittedMessege.length - 1;
   const lastMalWord = splittedMessege[messegeIndex];
-  //setMessege(splittedMessege.join());
   console.log(lastMalWord);
-  //setMessege(messege + lastWord);
 
   useEffect(()=> {
     axios.get(`${serverUrl}/malwords/${lastMalWord}`)
@@ -86,7 +72,6 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
   }, [messege])
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {  //current event will be received ie with current event current input value also received
-     
      const file = event.target.files?.[0];
      if(file){
       const reader: FileReader = new FileReader(); //A FileReader is an inbuilt JavaScript API that reads file contents asynchronously. It can convert files into different formats like text, ArrayBuffer, or Base64.
@@ -102,7 +87,6 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
       reader.readAsDataURL(file);//after file read as Dataurl ie base64 the file reading process is completed and onload function is called
     }     
   };
-
 
   const sendMessege = () => {
     setMalInput("");
@@ -153,19 +137,29 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
   }
 
   const handleMalClicked = (malWords: string)=> {
-    setMalInput(prevMessege=> prevMessege + " " + malWords);
+    setMalInput(prevMalInput=> prevMalInput + " " + malWords);
     console.log(messege);
   }
 
   console.log(malInput);
  
-  const handleMessegeChange = (e: React.ChangeEvent<HTMLInputElement>)=> {
+  const handleMessegeChange = (e: any)=> {
     const newMessege = e.target.value;
     setMessege(newMessege);
   }
-
+   
   const handleManglishTheme =()=> {
     setManglishTheme(prevTheme=> !prevTheme);
+  }
+
+  const onKeyDown = (e: any)=> {
+    if(e.keyCode == 8){ //backspace key have key code of 8  
+      SetmanglishWords([]);
+      console.log("delete button clicked");
+      setMalInput(messege.replace(messege.substring(messege.length - 1), ""));
+      console.log("messege after backspace:" + messege);
+      return;
+    }
   }
 
   useEffect(()=> {
@@ -236,8 +230,8 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
         <Input type='file' onChange={handleFileUpload} className='' id='fileInput' />
           <img src={manglishIcon} className={`h-5 w-5 mr-2 ${isManglish == true ? 'opacity-90' : 'opacity-20'} `} alt="" onClick={()=> {handleManglishOn()}}/>
           <Label htmlFor='fileInput' ><MdCloudUpload className='text-orange-700 lg:w-[90%]'/></Label>
-          <Input type="text" value={messege} onChange={handleMessegeChange} placeholder='type a messege' />
-          <Button className={buttonVariants({ variant: "emojiEmotions", size: "emojiEmotions" })} onClick={imojiState}><MdEmojiEmotions /></Button>
+          <Input type="text" value={messege} onChange={handleMessegeChange} placeholder='type a messege' onKeyDown={onKeyDown} />
+          <Button className={buttonVariants({ variant: "emojiEmotions", size: "emojiEmotions" })} onClick={imojiState}><BsEmojiSmile /></Button>
           <Button className={buttonVariants({ variant: "sendOutline", size: "sendOutline" })} onClick={sendMessege}><IoSendOutline /></Button>
       </div>
     </section>
