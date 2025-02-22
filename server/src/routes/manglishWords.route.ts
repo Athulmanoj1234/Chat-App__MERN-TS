@@ -1,10 +1,8 @@
 import express from "express";
-import { manglishWordSuggestion } from "../controllers/ManglishWords.controller";
-import cors from "cors";
+import { manglishWordSuggestion } from "../controllers/manglishWords.controller";
 
-const router = express();
-const app = express();
+const router = express.Router();
 
 router.get('/:lastMalWord', manglishWordSuggestion);
 
-module.exports = router; 
+export default router; 

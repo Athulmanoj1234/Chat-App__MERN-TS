@@ -1,18 +1,13 @@
 import express from 'express';
 import cors from 'cors';
-import { Server } from 'socket.io';
-import {createServer} from 'http';
-import { server, app, io } from '../src/socket/socket';
+import { server, app} from '../src/socket/socket';
 import dotenv from "dotenv";
-
-dotenv.config();
-
-const port: number = 4002;
-const manglishWordsRouter = require('../src/routes/manglishWords.route');
+import manglishWordsRouter from '../src/routes/manglishWords.route';
+import { client_Url, server_Port } from '../src/sense_variable/variable';
 
 app.use(cors({
     credentials: true, 
-    origin: `${process.env.CLIENT_URL}`, 
+    origin: client_Url, 
     methods: ["GET", "POST"]  
     }));
     
@@ -20,7 +15,7 @@ app.use(express.json());
 
 app.use('/malwords', manglishWordsRouter);
 
-server.listen(port, () => {
+server.listen(server_Port, () => {  
     console.log('server is listening');
 });
 

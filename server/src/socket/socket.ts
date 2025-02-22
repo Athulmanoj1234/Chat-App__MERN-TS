@@ -3,16 +3,16 @@ import { Server } from "socket.io";
 import express from 'express';
 import dotenv from "dotenv";
 import { Data, MessegeData } from 'typings/types';
+import { client_Url } from '../sense_variable/variable';
 
 dotenv.config()
 
 const app = express();
 const server = createServer(app);
-const port: number = 4002;
 
 const io = new Server(server, {
     cors: {
-        origin: [`${process.env.CLIENT_URL}`],
+        origin: [client_Url],
         methods: ['GET', 'POST']
     }
 })
