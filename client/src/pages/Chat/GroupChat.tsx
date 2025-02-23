@@ -137,7 +137,7 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
   }
 
   const handleMalClicked = (malWords: string)=> {
-    setMalInput(prevMalInput=> prevMalInput + " " + malWords);
+    setMessege(prevMessege=> prevMessege.replace(lastMalWord, malWords));
     console.log(messege);
   }
 
@@ -150,16 +150,6 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
    
   const handleManglishTheme =()=> {
     setManglishTheme(prevTheme=> !prevTheme);
-  }
-
-  const onKeyDown = (e: any)=> {
-    if(e.keyCode == 8){ //backspace key have key code of 8  
-      SetmanglishWords([]);
-      console.log("delete button clicked");
-      setMalInput(messege.replace(messege.substring(messege.length - 1), ""));
-      console.log("messege after backspace:" + messege);
-      return;
-    }
   }
 
   useEffect(()=> {
@@ -230,7 +220,7 @@ const GroupChat: React.FC<GroupChatProps> = ({socket}) => {
         <Input type='file' onChange={handleFileUpload} className='' id='fileInput' />
           <img src={manglishIcon} className={`h-5 w-5 mr-2 ${isManglish == true ? 'opacity-90' : 'opacity-20'} `} alt="" onClick={()=> {handleManglishOn()}}/>
           <Label htmlFor='fileInput' ><MdCloudUpload className='text-orange-700 lg:w-[90%]'/></Label>
-          <Input type="text" value={messege} onChange={handleMessegeChange} placeholder='type a messege' onKeyDown={onKeyDown} />
+          <Input type="text" value={messege} onChange={handleMessegeChange} placeholder='type a messege' />
           <Button className={buttonVariants({ variant: "emojiEmotions", size: "emojiEmotions" })} onClick={imojiState}><BsEmojiSmile /></Button>
           <Button className={buttonVariants({ variant: "sendOutline", size: "sendOutline" })} onClick={sendMessege}><IoSendOutline /></Button>
       </div>
